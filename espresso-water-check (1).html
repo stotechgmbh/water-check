@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Water Check">
+<title>Espresso Water Check</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#242424;--b1:rgba(255,255,255,0.08);--b2:rgba(255,255,255,0.16);--t1:#f0f0f0;--t2:#999;--t3:#555;--ac:#e8e0d0;--r:16px;--rs:10px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.app{max-width:430px;margin:0 auto;padding:0 16px 48px;}
+.header{padding:52px 0 24px;text-align:center;}
+.logo{width:64px;height:64px;background:var(--ac);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.header h1{font-size:26px;font-weight:600;letter-spacing:-0.8px;}
+.header .sub{font-size:14px;color:var(--t2);margin-top:6px;line-height:1.6;}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.ctitle{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:0.5px;margin-bottom:4px;}
+.cdesc{font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.5;}
+.cdesc a{color:#6fa8dc;text-decoration:none;}
+.irow{display:flex;gap:8px;}
+.ki{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rs);color:var(--t1);font-family:'DM Mono',monospace;font-size:12px;padding:10px 12px;outline:none;transition:border-color 0.2s;min-width:0;}
+.ki:focus{border-color:var(--b2);}
+.ki::placeholder{color:var(--t3);}
+.sb{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rs);color:var(--t2);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 14px;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.sb:hover{color:var(--t1);border-color:var(--b2);}
+.kst{font-size:12px;margin-top:8px;min-height:18px;}
+.kst.ok{color:#4ade80;}.kst.err{color:#f87171;}
+.steps{margin-top:14px;border-top:1px solid var(--b1);padding-top:14px;}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+.step:last-child{margin-bottom:0;}
+.sn{width:22px;height:22px;min-width:22px;background:var(--s2);border-radius:50%;font-size:11px;font-weight:600;color:var(--t2);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.step p{font-size:13px;color:var(--t2);line-height:1.5;}
+.step p b{color:var(--t1);font-weight:500;}
+.step p a{color:#6fa8dc;text-decoration:none;}
+.uzone{background:var(--s1);border:1.5px dashed var(--b2);border-radius:var(--r);padding:32px 20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;}
+.uzone:hover{border-color:rgba(255,255,255,0.28);background:var(--s2);}
+.uzone h2{font-size:15px;font-weight:500;color:var(--t2);}
+.uzone p{font-size:13px;color:var(--t3);margin-top:4px;}
+#fi{display:none;}
+.pvwrap{display:none;border-radius:var(--r);overflow:hidden;border:1px solid var(--b1);position:relative;background:var(--s1);}
+.pvwrap img{width:100%;max-height:300px;object-fit:contain;display:block;}
+.pvo{position:absolute;bottom:0;left:0;right:0;padding:12px 14px;background:linear-gradient(to top,rgba(0,0,0,0.72),transparent);display:flex;justify-content:flex-end;}
+.chb{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.22);border-radius:999px;color:#fff;font-size:13px;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.mbtn{width:100%;background:var(--ac);color:#0f0f0f;border:none;border-radius:var(--r);padding:16px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.15s,transform 0.1s;}
+.mbtn:hover{opacity:0.9;}.mbtn:active{transform:scale(0.98);}.mbtn:disabled{opacity:0.28;cursor:not-allowed;transform:none;}
+.spin{width:18px;height:18px;border:2.5px solid rgba(0,0,0,0.18);border-top-color:#0f0f0f;border-radius:50%;animation:sp 0.7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.ebox{display:none;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--rs);color:#f87171;font-size:13px;line-height:1.6;padding:12px 14px;margin-top:10px;}
+.result{display:none;margin-top:18px;}
+.scard{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:12px;}
+.stop{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.stop .lbl{font-size:13px;color:var(--t2);}
+.badge{font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;}
+.badge.green{background:rgba(74,222,128,0.12);color:#4ade80;}
+.badge.yellow{background:rgba(251,191,36,0.12);color:#fbbf24;}
+.badge.red{background:rgba(248,113,113,0.12);color:#f87171;}
+.sbar{height:10px;border-radius:999px;background:linear-gradient(to right,#4ade80 0%,#86efac 22%,#fde047 48%,#fb923c 70%,#ef4444 100%);position:relative;margin-bottom:6px;}
+.needle{width:20px;height:20px;background:#fff;border:3px solid #0f0f0f;border-radius:50%;position:absolute;top:50%;transform:translate(-50%,-50%);transition:left 0.9s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 2px 8px rgba(0,0,0,0.5);left:0%;}
+.slbl{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.mtile{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rs);padding:14px;}
+.mtile .ml{font-size:11px;color:var(--t3);margin-bottom:4px;}
+.mtile .mv{font-size:22px;font-weight:500;}
+.mtile .mu{font-size:12px;color:var(--t2);margin-left:2px;}
+.verdict{border-radius:var(--rs);padding:14px 16px;font-size:14px;line-height:1.65;margin-bottom:12px;border:1px solid transparent;}
+.verdict.green{background:rgba(74,222,128,0.1);color:#4ade80;border-color:rgba(74,222,128,0.18);}
+.verdict.yellow{background:rgba(251,191,36,0.1);color:#fbbf24;border-color:rgba(251,191,36,0.18);}
+.verdict.red{background:rgba(248,113,113,0.1);color:#f87171;border-color:rgba(248,113,113,0.18);}
+.exbox{display:none;background:var(--s1);border:1px solid var(--b1);border-radius:var(--rs);padding:14px 16px;}
+.extitle{font-size:11px;color:var(--t3);margin-bottom:8px;font-weight:500;letter-spacing:0.3px;}
+.exrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--b1);}
+.exrow:last-child{border-bottom:none;}
+.ek{font-size:13px;color:var(--t2);}
+.ev{font-family:'DM Mono',monospace;font-size:13px;color:var(--t1);}
+.hcard{margin-top:24px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:18px;}
+.hcard h3{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:0.5px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <path d="M7 26 Q18 6 29 26" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="18" cy="16" r="3.5" fill="#0f0f0f"/>
+        <path d="M10 30 h16" stroke="#0f0f0f" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M14 30 v2.5 Q18 35 22 32.5 v-2.5" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Espresso Water Check</h1>
+    <p class="sub">Etikett fotografieren → Kalkeignung sofort<br>DE · FR · IT · EN · kostenlos</p>
+  </div>
+
+  <div class="card" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);">
+    <div class="ctitle" style="color:#fbbf24;">WICHTIG — APP BRAUCHT EINEN SERVER</div>
+    <p style="font-size:13px;color:#fbbf24;line-height:1.5;margin:0;">Als lokale Datei funktioniert die Kamera-Analyse nicht (CORS). Lade die Datei auf <b style="color:#fbbf24;">GitHub Pages</b> hoch — kostenlos, Anleitung ganz unten.</p>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">GOOGLE GEMINI API KEY (KOSTENLOS)</div>
+    <p class="cdesc">Kein Kreditkarte nötig. Key holen auf <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></p>
+    <div class="irow">
+      <input type="password" class="ki" id="apiKey" placeholder="Deinen Key hier einfügen..." autocomplete="off">
+      <button class="sb" onclick="saveKey()">Speichern</button>
+    </div>
+    <div class="kst" id="kst"></div>
+  </div>
+
+  <div class="uzone" id="uzone" onclick="document.getElementById('fi').click()">
+    <div style="color:var(--t3);margin-bottom:12px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+    </div>
+    <h2>Foto aufnehmen oder wählen</h2>
+    <p>Mineralwasser-Etikett mit Analysewerten</p>
+  </div>
+  <input type="file" id="fi" accept="image/*" capture="environment">
+
+  <div class="pvwrap" id="pvwrap">
+    <img id="pvimg" alt="Vorschau">
+    <div class="pvo">
+      <button class="chb" onclick="document.getElementById('fi').click()">Bild ändern</button>
+    </div>
+  </div>
+
+  <button class="mbtn" id="abtn" disabled onclick="analyze()">
+    <span id="btxt">Bild wählen, dann analysieren</span>
+  </button>
+  <div class="ebox" id="ebox"></div>
+
+  <div class="result" id="result">
+    <div class="scard">
+      <div class="stop"><span class="lbl">Espresso-Eignung</span><span class="badge" id="badge">—</span></div>
+      <div class="sbar"><div class="needle" id="needle"></div></div>
+      <div class="slbl"><span>Ideal</span><span>Grenzwertig</span><span>Zu hart</span></div>
+    </div>
+    <div class="mgrid">
+      <div class="mtile"><div class="ml">Gesamthärte</div><div><span class="mv" id="mGH">—</span><span class="mu">°dH</span></div></div>
+      <div class="mtile"><div class="ml">Carbonathärte</div><div><span class="mv" id="mKH">—</span><span class="mu">°dH</span></div></div>
+      <div class="mtile"><div class="ml">Calcium</div><div><span class="mv" id="mCa">—</span><span class="mu">mg/l</span></div></div>
+      <div class="mtile"><div class="ml">Magnesium</div><div><span class="mv" id="mMg">—</span><span class="mu">mg/l</span></div></div>
+      <div class="mtile"><div class="ml">Hydrogencarbonat</div><div><span class="mv" id="mHCO">—</span><span class="mu">mg/l</span></div></div>
+      <div class="mtile"><div class="ml">Mineralien ges.</div><div><span class="mv" id="mTDS">—</span><span class="mu">mg/l</span></div></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="exbox" id="exbox">
+      <div class="extitle">WEITERE WERTE</div>
+      <div id="exrows"></div>
+    </div>
+  </div>
+
+  <div class="hcard">
+    <h3>IPHONE SETUP — GITHUB PAGES (KOSTENLOS, 5 MIN)</h3>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Gehe auf <a href="https://github.com" target="_blank">github.com</a> → <b>kostenloses Konto erstellen</b></p></div>
+      <div class="step"><div class="sn">2</div><p>Oben rechts <b>„+" → „New repository"</b> klicken</p></div>
+      <div class="step"><div class="sn">3</div><p>Name: <b>water-check</b> · Sichtbarkeit: <b>Public</b> · <b>„Create repository"</b></p></div>
+      <div class="step"><div class="sn">4</div><p><b>„uploading an existing file"</b> klicken → diese HTML-Datei hochladen → <b>„Commit changes"</b></p></div>
+      <div class="step"><div class="sn">5</div><p>Gehe zu <b>Settings → Pages</b> → Branch: <b>main</b> auswählen → <b>Save</b></p></div>
+      <div class="step"><div class="sn">6</div><p>Nach 1–2 Minuten läuft die App auf <b>deinname.github.io/water-check</b></p></div>
+      <div class="step"><div class="sn">7</div><p>URL in <b>Safari</b> öffnen → Teilen → <b>„Zum Home-Bildschirm"</b> → fertig!</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let b64=null,mime='image/jpeg';
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const k=localStorage.getItem('gkey');
+  if(k){document.getElementById('apiKey').value=k;setSt('✓ Gespeichert','ok');}
+});
+function setSt(m,t){const e=document.getElementById('kst');e.textContent=m;e.className='kst '+t;}
+function saveKey(){
+  const v=document.getElementById('apiKey').value.trim();
+  if(v.length<10){setSt('✗ Key zu kurz','err');return;}
+  localStorage.setItem('gkey',v);setSt('✓ Gespeichert','ok');
+}
+
+document.getElementById('fi').addEventListener('change',function(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  mime=file.type||'image/jpeg';
+  // Vorschau mit Object URL (funktioniert überall)
+  const obj=URL.createObjectURL(file);
+  const img=document.getElementById('pvimg');
+  img.src=obj;
+  document.getElementById('uzone').style.display='none';
+  document.getElementById('pvwrap').style.display='block';
+  document.getElementById('abtn').disabled=false;
+  document.getElementById('btxt').textContent='Jetzt analysieren →';
+  document.getElementById('ebox').style.display='none';
+  document.getElementById('result').style.display='none';
+  // Base64 für API
+  const r=new FileReader();
+  r.onload=ev=>{b64=ev.target.result.split(',')[1];};
+  r.readAsDataURL(file);
+});
+
+function showErr(m){const e=document.getElementById('ebox');e.textContent=m;e.style.display='block';}
+function setLoad(on){
+  document.getElementById('abtn').disabled=on;
+  document.getElementById('btxt').innerHTML=on?'<div class="spin"></div> KI liest Etikett…':'Erneut analysieren →';
+}
+function cp(dH){
+  if(dH<=0)return 2;if(dH<=4)return 2+dH/4*18;if(dH<=8)return 20+(dH-4)/4*22;
+  if(dH<=14)return 42+(dH-8)/6*33;if(dH<=21)return 75+(dH-14)/7*18;return 96;
+}
+function rc(dH){return dH>=2&&dH<=8?'green':(dH>8&&dH<=14)||(dH>0&&dH<2)?'yellow':'red';}
+function rl(dH){return dH>=2&&dH<=8?'Ideal für Espresso':dH>8&&dH<=14?'Noch akzeptabel':dH>0&&dH<2?'Zu weich':'Zu hart';}
+function vt(dH){
+  if(dH>=2&&dH<=8)return'Perfektes Wasser. Schonend zur Maschine, optimale Aromaextraktion.';
+  if(dH>8&&dH<=14)return'Akzeptabel, Kalkablagerungen möglich. Regelmässig entkalken, Wasserfilter empfohlen.';
+  if(dH<2)return'Wasser zu weich — kann Metalle lösen, Espresso schmeckt flach. Mit härterem Wasser mischen.';
+  return'Wasser zu hart — hohe Kalkbelastung! Maschine wird beschädigt. Gefiltertes Wasser verwenden.';
+}
+
+async function analyze(){
+  const key=localStorage.getItem('gkey')||document.getElementById('apiKey').value.trim();
+  if(!key||key.length<10){showErr('Bitte Gemini API Key eingeben und speichern.');return;}
+  if(!b64){showErr('Bitte zuerst ein Bild auswählen.');return;}
+  setLoad(true);
+  document.getElementById('ebox').style.display='none';
+  document.getElementById('result').style.display='none';
+  const prompt=`You are a water mineral analysis expert. Analyze this mineral water label.
+Labels may be German, French, Italian, English, Spanish or other languages.
+Terms: Calcium/Ca/Calcio, Magnesium/Mg, Hydrogencarbonat/Bicarbonates/Bicarbonati/HCO3, Natrium/Sodium/Na, Kalium/Potassium/K, Sulfat/Sulfate/SO4, Chlorid/Chlorure/Cl, Trockenrückstand/Residuo secco/Résidu sec/TDS.
+Respond ONLY with raw JSON no markdown no fences:
+{"calcium_mg_l":number_or_null,"magnesium_mg_l":number_or_null,"natrium_mg_l":number_or_null,"kalium_mg_l":number_or_null,"hydrogencarbonat_mg_l":number_or_null,"sulfat_mg_l":number_or_null,"chlorid_mg_l":number_or_null,"tds_mg_l":number_or_null,"brand":"string_or_null","label_language":"string","found_values":true_or_false}
+Only values actually on label. Never invent. found_values=false if no mineral label visible.`;
+  try{
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+    const res=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{inline_data:{mime_type:mime,data:b64}},{text:prompt}]}],
+        generationConfig:{temperature:0,maxOutputTokens:512}
+      })
+    });
+    if(!res.ok){
+      const er=await res.json().catch(()=>({}));
+      if(res.status===400||res.status===403)throw new Error('API Key ungültig. Bitte auf aistudio.google.com/apikey prüfen.');
+      throw new Error('Fehler '+res.status+': '+(er.error?.message||'Unbekannt'));
+    }
+    const data=await res.json();
+    const raw=(data.candidates?.[0]?.content?.parts?.[0]?.text||'').replace(/```json|```/g,'').trim();
+    const p=JSON.parse(raw);
+    if(!p.found_values)throw new Error('Kein lesbares Etikett erkannt. Klareres Foto aufnehmen.');
+    const Ca=p.calcium_mg_l||0,Mg=p.magnesium_mg_l||0,HCO3=p.hydrogencarbonat_mg_l||0;
+    const Na=p.natrium_mg_l||0,K=p.kalium_mg_l||0,SO4=p.sulfat_mg_l||0,Cl=p.chlorid_mg_l||0;
+    const gh=((Ca/40.08)+(Mg/24.31))*2.804,kh=(HCO3/61.02)*2.804;
+    const tds=p.tds_mg_l||(Ca+Mg+Na+K+SO4+Cl);
+    const r=rc(gh),pp=cp(gh);
+    const badge=document.getElementById('badge');
+    badge.textContent=rl(gh);badge.className='badge '+r;
+    document.getElementById('needle').style.left='0%';
+    setTimeout(()=>{document.getElementById('needle').style.left=pp.toFixed(1)+'%';},80);
+    document.getElementById('mGH').textContent=gh.toFixed(1);
+    document.getElementById('mKH').textContent=kh.toFixed(1);
+    document.getElementById('mCa').textContent=Math.round(Ca);
+    document.getElementById('mMg').textContent=Math.round(Mg);
+    document.getElementById('mHCO').textContent=Math.round(HCO3);
+    document.getElementById('mTDS').textContent=Math.round(tds);
+    const ve=document.getElementById('verdict');ve.textContent=vt(gh);ve.className='verdict '+r;
+    const rows=[];
+    if(p.brand)rows.push(['Marke',p.brand]);
+    if(p.label_language)rows.push(['Sprache',p.label_language]);
+    if(Na>0)rows.push(['Natrium Na+',Math.round(Na)+' mg/l']);
+    if(K>0)rows.push(['Kalium K+',Math.round(K)+' mg/l']);
+    if(SO4>0)rows.push(['Sulfat SO4',Math.round(SO4)+' mg/l']);
+    if(Cl>0)rows.push(['Chlorid Cl',Math.round(Cl)+' mg/l']);
+    const eb=document.getElementById('exbox');
+    if(rows.length>0){
+      document.getElementById('exrows').innerHTML=rows.map(([k,v])=>`<div class="exrow"><span class="ek">${k}</span><span class="ev">${v}</span></div>`).join('');
+      eb.style.display='block';
+    }else{eb.style.display='none';}
+    document.getElementById('result').style.display='block';
+    setTimeout(()=>document.getElementById('result').scrollIntoView({behavior:'smooth'}),100);
+  }catch(err){
+    let msg=err.message||'Analyse fehlgeschlagen.';
+    if(msg.includes('Failed to fetch')||msg.includes('NetworkError')||msg.toLowerCase().includes('cors')){
+      msg='Verbindungsfehler: Die App muss auf GitHub Pages laufen, nicht als lokale Datei. Bitte Anleitung unten befolgen.';
+    }
+    showErr(msg);
+  }finally{setLoad(false);}
+}
+</script>
+</body>
+</html>
