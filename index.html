@@ -234,11 +234,32 @@ Terms: Calcium/Ca/Calcio, Magnesium/Mg, Hydrogencarbonat/Bicarbonates/Bicarbonat
 Respond ONLY with raw JSON no markdown no fences:
 {"calcium_mg_l":number_or_null,"magnesium_mg_l":number_or_null,"natrium_mg_l":number_or_null,"kalium_mg_l":number_or_null,"hydrogencarbonat_mg_l":number_or_null,"sulfat_mg_l":number_or_null,"chlorid_mg_l":number_or_null,"tds_mg_l":number_or_null,"brand":"string_or_null","label_language":"string","found_values":true_or_false}
 Only values actually on label. Never invent. found_values=false if no mineral label visible.`;
-  // Modell-Liste: versucht der Reihe nach bis eines funktioniert
-  const models=['gemini-1.5-flash-latest','gemini-1.5-flash','gemini-2.0-flash','gemini-1.5-flash-8b'];
+  // Zuerst verfügbare Modelle abfragen
+  let availableModels=[];
+  try{
+    const listRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    if(listRes.ok){
+      const listData=await listRes.json();
+      availableModels=(listData.models||[])
+        .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+        .map(m=>m.name.replace('models/',''))
+        .filter(n=>n.includes('flash')||n.includes('pro'))
+        .sort((a,b)=>{
+          // Flash-Lite bevorzugt (günstigste), dann Flash, dann Pro
+          const score=n=>(n.includes('flash-lite')?0:n.includes('flash')?1:2);
+          return score(a)-score(b);
+        });
+    }
+  }catch(e){}
+
+  // Fallback falls ListModels fehlschlägt
+  if(availableModels.length===0){
+    availableModels=['gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash','gemini-2.5-flash-lite'];
+  }
+
   let res=null, lastErr='';
   try{
-    for(const m of models){
+    for(const m of availableModels){
       const url=`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
       res=await fetch(url,{
         method:'POST',
@@ -251,12 +272,12 @@ Only values actually on label. Never invent. found_values=false if no mineral la
       if(res.ok) break;
       const er=await res.json().catch(()=>({}));
       lastErr=er.error?.message||('HTTP '+res.status);
-      // Bei 429 (Quota) das nächste Modell probieren; bei anderen Fehlern abbrechen
+      // Bei 429 (Quota) oder 404 (Modell fehlt) nächstes probieren; bei anderen abbrechen
       if(res.status!==429 && res.status!==404) break;
     }
     if(!res.ok){
       if(res.status===400||res.status===403)throw new Error('API Key ungültig. Bitte auf aistudio.google.com/apikey prüfen.');
-      if(res.status===429)throw new Error('Quota überschritten für alle Free-Tier-Modelle. Bitte einige Minuten warten oder in Google AI Studio Billing aktivieren (sehr geringe Kosten: ca. 0.001 Cent pro Analyse).');
+      if(res.status===429)throw new Error('Quota überschritten für alle Free-Tier-Modelle. Bitte einige Minuten warten oder in Google AI Studio Billing aktivieren (ca. 0.001 Cent pro Analyse).');
       throw new Error('Fehler '+res.status+': '+lastErr);
     }
     const data=await res.json();
