@@ -95,14 +95,9 @@ html,body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;
     <p class="sub">Etikett fotografieren → Kalkeignung sofort<br>DE · FR · IT · EN · kostenlos</p>
   </div>
 
-  <div class="card" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);">
-    <div class="ctitle" style="color:#fbbf24;">WICHTIG — APP BRAUCHT EINEN SERVER</div>
-    <p style="font-size:13px;color:#fbbf24;line-height:1.5;margin:0;">Als lokale Datei funktioniert die Kamera-Analyse nicht (CORS). Lade die Datei auf <b style="color:#fbbf24;">GitHub Pages</b> hoch — kostenlos, Anleitung ganz unten.</p>
-  </div>
-
-  <div class="card">
-    <div class="ctitle">GOOGLE GEMINI API KEY (KOSTENLOS)</div>
-    <p class="cdesc">Kein Kreditkarte nötig. Key holen auf <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></p>
+  <div class="card" id="keyCard">
+    <div class="ctitle">GOOGLE GEMINI API KEY</div>
+    <p class="cdesc">Einmalig eingeben. Wird lokal gespeichert. Key holen auf <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></p>
     <div class="irow">
       <input type="password" class="ki" id="apiKey" placeholder="Deinen Key hier einfügen..." autocomplete="off">
       <button class="sb" onclick="saveKey()">Speichern</button>
@@ -155,17 +150,11 @@ html,body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;
     </div>
   </div>
 
-  <div class="hcard">
-    <h3>IPHONE SETUP — GITHUB PAGES (KOSTENLOS, 5 MIN)</h3>
-    <div class="steps">
-      <div class="step"><div class="sn">1</div><p>Gehe auf <a href="https://github.com" target="_blank">github.com</a> → <b>kostenloses Konto erstellen</b></p></div>
-      <div class="step"><div class="sn">2</div><p>Oben rechts <b>„+" → „New repository"</b> klicken</p></div>
-      <div class="step"><div class="sn">3</div><p>Name: <b>water-check</b> · Sichtbarkeit: <b>Public</b> · <b>„Create repository"</b></p></div>
-      <div class="step"><div class="sn">4</div><p><b>„uploading an existing file"</b> klicken → diese HTML-Datei hochladen → <b>„Commit changes"</b></p></div>
-      <div class="step"><div class="sn">5</div><p>Gehe zu <b>Settings → Pages</b> → Branch: <b>main</b> auswählen → <b>Save</b></p></div>
-      <div class="step"><div class="sn">6</div><p>Nach 1–2 Minuten läuft die App auf <b>deinname.github.io/water-check</b></p></div>
-      <div class="step"><div class="sn">7</div><p>URL in <b>Safari</b> öffnen → Teilen → <b>„Zum Home-Bildschirm"</b> → fertig!</p></div>
-    </div>
+  <!-- Kleiner Key-Toggle am Ende -->
+  <div style="text-align:center;margin-top:32px;">
+    <button onclick="toggleKey()" style="background:none;border:none;color:var(--t3);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;padding:8px;">
+      API Key ändern
+    </button>
   </div>
 </div>
 
@@ -174,13 +163,26 @@ let b64=null,mime='image/jpeg';
 
 window.addEventListener('DOMContentLoaded',()=>{
   const k=localStorage.getItem('gkey');
-  if(k){document.getElementById('apiKey').value=k;setSt('✓ Gespeichert','ok');}
+  if(k){
+    document.getElementById('apiKey').value=k;
+    setSt('✓ Gespeichert','ok');
+    // Key ist gespeichert → Karte ausblenden
+    document.getElementById('keyCard').style.display='none';
+  }
 });
+function toggleKey(){
+  const c=document.getElementById('keyCard');
+  c.style.display=c.style.display==='none'?'block':'none';
+  if(c.style.display==='block')c.scrollIntoView({behavior:'smooth'});
+}
 function setSt(m,t){const e=document.getElementById('kst');e.textContent=m;e.className='kst '+t;}
 function saveKey(){
   const v=document.getElementById('apiKey').value.trim();
   if(v.length<10){setSt('✗ Key zu kurz','err');return;}
-  localStorage.setItem('gkey',v);setSt('✓ Gespeichert','ok');
+  localStorage.setItem('gkey',v);
+  setSt('✓ Gespeichert','ok');
+  // Nach kurzer Bestätigung Karte ausblenden
+  setTimeout(()=>{document.getElementById('keyCard').style.display='none';},800);
 }
 
 document.getElementById('fi').addEventListener('change',function(e){
