@@ -233,6 +233,9 @@ async function analyze(){
   const prompt=`You are a water mineral analysis expert. Analyze this mineral water label.
 Labels may be German, French, Italian, English, Spanish or other languages.
 Terms: Calcium/Ca/Calcio, Magnesium/Mg, Hydrogencarbonat/Bicarbonates/Bicarbonati/HCO3, Natrium/Sodium/Na, Kalium/Potassium/K, Sulfat/Sulfate/SO4, Chlorid/Chlorure/Cl, Trockenrückstand/Residuo secco/Résidu sec/TDS.
+
+CRITICAL: Return the EXACT numeric values as printed on the label, including decimal places. If the label shows "0.2 mg/l", return 0.2 not 0. If it shows "12.5", return 12.5 not 13. Never round or truncate.
+
 Respond ONLY with raw JSON no markdown no fences:
 {"calcium_mg_l":number_or_null,"magnesium_mg_l":number_or_null,"natrium_mg_l":number_or_null,"kalium_mg_l":number_or_null,"hydrogencarbonat_mg_l":number_or_null,"sulfat_mg_l":number_or_null,"chlorid_mg_l":number_or_null,"tds_mg_l":number_or_null,"brand":"string_or_null","label_language":"string","found_values":true_or_false}
 Only values actually on label. Never invent. found_values=false if no mineral label visible.`;
@@ -305,10 +308,10 @@ Only values actually on label. Never invent. found_values=false if no mineral la
     const rows=[];
     if(p.brand)rows.push(['Marke',p.brand]);
     if(p.label_language)rows.push(['Sprache',p.label_language]);
-    if(Na>0)rows.push(['Natrium Na+',Na.toFixed(1)+' mg/l']);
-    if(K>0)rows.push(['Kalium K+',K.toFixed(1)+' mg/l']);
-    if(SO4>0)rows.push(['Sulfat SO4',SO4.toFixed(1)+' mg/l']);
-    if(Cl>0)rows.push(['Chlorid Cl',Cl.toFixed(1)+' mg/l']);
+    if(p.natrium_mg_l!=null)rows.push(['Natrium Na+',p.natrium_mg_l.toFixed(1)+' mg/l']);
+    if(p.kalium_mg_l!=null)rows.push(['Kalium K+',p.kalium_mg_l.toFixed(1)+' mg/l']);
+    if(p.sulfat_mg_l!=null)rows.push(['Sulfat SO4',p.sulfat_mg_l.toFixed(1)+' mg/l']);
+    if(p.chlorid_mg_l!=null)rows.push(['Chlorid Cl',p.chlorid_mg_l.toFixed(1)+' mg/l']);
     const eb=document.getElementById('exbox');
     if(rows.length>0){
       document.getElementById('exrows').innerHTML=rows.map(([k,v])=>`<div class="exrow"><span class="ek">${k}</span><span class="ev">${v}</span></div>`).join('');
