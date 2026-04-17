@@ -297,18 +297,18 @@ Only values actually on label. Never invent. found_values=false if no mineral la
     setTimeout(()=>{document.getElementById('needle').style.left=pp.toFixed(1)+'%';},80);
     document.getElementById('mGH').textContent=gh.toFixed(1);
     document.getElementById('mKH').textContent=kh.toFixed(1);
-    document.getElementById('mCa').textContent=Math.round(Ca);
-    document.getElementById('mMg').textContent=Math.round(Mg);
-    document.getElementById('mHCO').textContent=Math.round(HCO3);
-    document.getElementById('mTDS').textContent=Math.round(tds);
+    document.getElementById('mCa').textContent=Ca.toFixed(1);
+    document.getElementById('mMg').textContent=Mg.toFixed(1);
+    document.getElementById('mHCO').textContent=HCO3.toFixed(1);
+    document.getElementById('mTDS').textContent=tds.toFixed(1);
     const ve=document.getElementById('verdict');ve.textContent=vt(gh);ve.className='verdict '+r;
     const rows=[];
     if(p.brand)rows.push(['Marke',p.brand]);
     if(p.label_language)rows.push(['Sprache',p.label_language]);
-    if(Na>0)rows.push(['Natrium Na+',Math.round(Na)+' mg/l']);
-    if(K>0)rows.push(['Kalium K+',Math.round(K)+' mg/l']);
-    if(SO4>0)rows.push(['Sulfat SO4',Math.round(SO4)+' mg/l']);
-    if(Cl>0)rows.push(['Chlorid Cl',Math.round(Cl)+' mg/l']);
+    if(Na>0)rows.push(['Natrium Na+',Na.toFixed(1)+' mg/l']);
+    if(K>0)rows.push(['Kalium K+',K.toFixed(1)+' mg/l']);
+    if(SO4>0)rows.push(['Sulfat SO4',SO4.toFixed(1)+' mg/l']);
+    if(Cl>0)rows.push(['Chlorid Cl',Cl.toFixed(1)+' mg/l']);
     const eb=document.getElementById('exbox');
     if(rows.length>0){
       document.getElementById('exrows').innerHTML=rows.map(([k,v])=>`<div class="exrow"><span class="ek">${k}</span><span class="ev">${v}</span></div>`).join('');
